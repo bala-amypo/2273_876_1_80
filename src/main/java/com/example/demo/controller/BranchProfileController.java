@@ -36,4 +36,8 @@ public class BranchProfileController {
     public List<BranchProfile> getAllBranches() {
         return branchProfileService.getAllBranches();
     }
+    @GetMapping("/lookup/{branchCode}")
+    public BranchProfile getByBranchCode(@PathVariable String branchCode) {
+        return branchProfileService.getByBranchCode(branchCode);
+    }
 
