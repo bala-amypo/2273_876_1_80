@@ -77,5 +77,6 @@ public class BranchProfile {
     public void setActive(Boolean active) {
         this.active = active;
     }
-    public 
+    public BranchProfile(Long id,String branchcode,String branchName,String contactEmail,LocalDateTime lastSyncAt,Boolean active){
+}
 }
