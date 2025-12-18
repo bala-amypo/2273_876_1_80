@@ -77,4 +77,5 @@ public class BranchProfile {
     public void setActive(Boolean active) {
         this.active = active;
     }
+    public 
 }
