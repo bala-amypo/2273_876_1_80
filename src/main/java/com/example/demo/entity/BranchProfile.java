@@ -77,6 +77,12 @@ public class BranchProfile {
     public void setActive(Boolean active) {
         this.active = active;
     }
-    public BranchProfile(Long id,String branchcode,String branchName,String contactEmail,LocalDateTime lastSyncAt,Boolean active){
+    public BranchProfile(Long id,String branchCode,String branchName,String contactEmail,LocalDateTime lastSyncAt,Boolean active){
+    this.id=id;
+    this.branchCode=branchCode;
+    this.branchName=branchName;
+    this.contactEmail=contactEmail;
+    this.active=active;
+    
 }
 }
