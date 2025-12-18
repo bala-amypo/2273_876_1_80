@@ -69,8 +69,9 @@ public class BranchProfile {
     public LocalDateTime getLastSyncAt() {
         return lastSyncAt;
     }
-    public void getLastSyncAt()
-
+    public void getLastSyncAt(LocalDateTime lastSyncAt){
+        this.lastSyncAt=lastSyncAt;
+    }
     public Boolean getActive() {
         return active;
     }
