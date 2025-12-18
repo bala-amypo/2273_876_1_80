@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// REMOVE this if Swagger is not configured
+// import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/branches")
-@Tag(name = "Branch Profiles")
+// @Tag(name = "Branch Profiles")
 public class BranchProfileController {
 
     private final BranchProfileService branchProfileService;
@@ -16,17 +19,20 @@ public class BranchProfileController {
     public BranchProfileController(BranchProfileService branchProfileService) {
         this.branchProfileService = branchProfileService;
     }
-        @PostMapping
+
+    @PostMapping
     public BranchProfile createBranch(@RequestBody BranchProfile branchProfile) {
         return branchProfileService.createBranch(branchProfile);
     }
-        @PutMapping("/{id}/status")
+
+    @PutMapping("/{id}/status")
     public BranchProfile updateBranchStatus(
             @PathVariable Long id,
             @RequestParam boolean active) {
 
-        return branchProfileService.updateStatus(id, active);
+        return branchProfileService.updateBranchStatus(id, active);
     }
+
     @GetMapping("/{id}")
     public BranchProfile getBranchById(@PathVariable Long id) {
         return branchProfileService.getBranchById(id);
@@ -36,9 +42,9 @@ public class BranchProfileController {
     public List<BranchProfile> getAllBranches() {
         return branchProfileService.getAllBranches();
     }
+
     @GetMapping("/lookup/{branchCode}")
-    public BranchProfile getByBranchCode(@PathVariable String branchCode) {
-        return branchProfileService.getByBranchCode(branchCode);
+    public BranchProfile findByBranchCode(@PathVariable String branchCode) {
+        return branchProfileService.findByBranchCode(branchCode);
     }
 }
-
