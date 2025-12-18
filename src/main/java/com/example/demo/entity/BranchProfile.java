@@ -69,6 +69,7 @@ public class BranchProfile {
     public LocalDateTime getLastSyncAt() {
         return lastSyncAt;
     }
+    public void getLastSyncAt()
 
     public Boolean getActive() {
         return active;
