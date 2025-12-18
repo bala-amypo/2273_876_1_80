@@ -40,4 +40,5 @@ public class BranchProfileController {
     public BranchProfile getByBranchCode(@PathVariable String branchCode) {
         return branchProfileService.getByBranchCode(branchCode);
     }
+}
 
