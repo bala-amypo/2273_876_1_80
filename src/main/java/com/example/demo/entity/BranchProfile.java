@@ -82,7 +82,8 @@ public class BranchProfile {
     this.branchCode=branchCode;
     this.branchName=branchName;
     this.contactEmail=contactEmail;
+    this.lastSyncAt=lastSyncAt;
     this.active=active;
-    
+
 }
 }
