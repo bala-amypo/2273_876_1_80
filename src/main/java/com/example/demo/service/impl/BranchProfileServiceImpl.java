@@ -46,7 +46,6 @@ public class BranchProfileServiceImpl implements BranchProfileService {
         return branchProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
     }
-
     //findByBranchCode
     @Override
     public BranchProfile findByBranchCode(String branchCode) {
