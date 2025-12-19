@@ -1,4 +1,5 @@
 package com.example.demo.repository;
-List<ClashRecord> findByEventAIdOrEventBId(Long eventAId, Long eventBId){
-    
+
+public interface ClashRecordRepository extends JpaRepository<ClashRecord, Long>{
+   
 }
