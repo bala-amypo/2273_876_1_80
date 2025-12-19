@@ -1,3 +1,5 @@
 package com.example.demo.controller;
 
-public class AcademiEventController
+public class AcademiEventController{
+    
+}
