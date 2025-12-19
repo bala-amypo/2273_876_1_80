@@ -1,5 +1,4 @@
 package com.example.demo.repository;
 
-public List<EventMergeRecord> findByMergedStartDateBetween(LocalDate start, LocalDate end){
-    
+public interface EventMergeRecordRepository extends JpaRepository<EventMergeRecord, Long>{
 }
