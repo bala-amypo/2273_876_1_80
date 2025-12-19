@@ -12,7 +12,7 @@ public class BranchProfileController {
 
     private final BranchProfileService branchProfileService;
 
-    // 🔹 Dependency Injection
+    // Dependency Injection
     public BranchProfileController(BranchProfileService branchProfileService) {
         this.branchProfileService = branchProfileService;
     }
@@ -55,3 +55,4 @@ public class BranchProfileController {
         return branchProfileService.findByBranchCode(branchCode);
     }
 }
+
