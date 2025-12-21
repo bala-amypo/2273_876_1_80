@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface HarmonizedCalendarRepository
         extends JpaRepository<HarmonizedCalendar, Long> {
-
     // 🔹 Find calendars overlapping a date range
     List<HarmonizedCalendar>
     findByEffectiveFromLessThanEqualAndEffectiveToGreaterThanEqual(
