@@ -72,13 +72,13 @@ public class EventMergeServiceImpl implements EventMergeService {
         return eventMergeRecordRepository.save(mergeRecord);
     }
 
-    // 🔹 Get all merge records
+    //Get all merge records
     @Override
     public List<EventMergeRecord> getAllMergeRecords() {
         return eventMergeRecordRepository.findAll();
     }
 
-    // 🔹 Get merge record by ID
+    //Get merge record by ID
     @Override
     public EventMergeRecord getMergeRecordById(Long id) {
         return eventMergeRecordRepository.findById(id)
