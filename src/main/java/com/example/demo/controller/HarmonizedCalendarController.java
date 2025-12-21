@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-package com.example.demo.controller;
 
 import com.example.demo.entity.HarmonizedCalendar;
 import com.example.demo.service.HarmonizedCalendarService;
