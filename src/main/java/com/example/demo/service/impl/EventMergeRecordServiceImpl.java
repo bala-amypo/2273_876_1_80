@@ -18,7 +18,6 @@ public class EventMergeRecordServiceImpl implements EventMergeRecordService {
     private final EventMergeRecordRepository eventMergeRecordRepository;
     private final AcademicEventRepository academicEventRepository;
 
-    // Constructor injection
     public EventMergeRecordServiceImpl(
             EventMergeRecordRepository eventMergeRecordRepository,
             AcademicEventRepository academicEventRepository
@@ -30,7 +29,6 @@ public class EventMergeRecordServiceImpl implements EventMergeRecordService {
     @Override
     public EventMergeRecord mergeEvents(List<Long> eventIds, String reason) {
 
-        // Validate all event IDs
         List<AcademicEvent> events = eventIds.stream()
                 .map(id -> academicEventRepository.findById(id)
                         .orElseThrow(() ->
@@ -51,17 +49,14 @@ public class EventMergeRecordServiceImpl implements EventMergeRecordService {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
-        String mergedTitle = "Merged Events: " + sourceEventIds;
+        EventMergeRecord record = new EventMergeRecord();
+        record.setSourceEventIds(sourceEventIds);
+        record.setMergedTitle("Merged Events: " + sourceEventIds);
+        record.setMergedStartDate(mergedStartDate);
+        record.setMergedEndDate(mergedEndDate);
+        record.setMergeReason(reason);
 
-        // ✅ Use NO-ARG constructor (fixes compile error)
-        EventMergeRecord mergeRecord = new EventMergeRecord();
-        mergeRecord.setSourceEventIds(sourceEventIds);
-        mergeRecord.setMergedTitle(mergedTitle);
-        mergeRecord.setMergedStartDate(mergedStartDate);
-        mergeRecord.setMergedEndDate(mergedEndDate);
-        mergeRecord.setMergeReason(reason);
-
-        return eventMergeRecordRepository.save(mergeRecord);
+        return eventMergeRecordRepository.save(record);
     }
 
     @Override
