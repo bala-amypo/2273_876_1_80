@@ -19,7 +19,6 @@ public class EventMergeRecordController {
     public EventMergeRecordController(EventMergeRecordService eventMergeRecordService) {
         this.eventMergeRecordService = eventMergeRecordService;
     }
-
     // 🔐 POST /api/merge-records
     @PostMapping
     public EventMergeRecord mergeEvents(@RequestBody EventMergeRequest request) {
