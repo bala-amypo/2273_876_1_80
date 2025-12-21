@@ -2,7 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.EventMergeRequest;
 import com.example.demo.entity.EventMergeRecord;
-import com.example.demo.service.EventMergeService;
+import com.example.demo.service.EventMergeRecordService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,20 +11,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/merge-records")
-public class EventMergeController {
+public class EventMergeRecordController {
 
-    private final EventMergeService eventMergeService;
+    private final EventMergeRecordService eventMergeRecordService;
 
-    // 🔹 Constructor Injection
-    public EventMergeController(EventMergeService eventMergeService) {
-        this.eventMergeService = eventMergeService;
+    public EventMergeRecordController(EventMergeRecordService eventMergeRecordService) {
+        this.eventMergeRecordService = eventMergeRecordService;
     }
 
     // 🔐 POST /api/merge-records
     @PostMapping
-    // @PreAuthorize("hasRole('ADMIN')") // JWT protected
     public EventMergeRecord mergeEvents(@RequestBody EventMergeRequest request) {
-        return eventMergeService.mergeEvents(
+        return eventMergeRecordService.mergeEvents(
                 request.getEventIds(),
                 request.getReason()
         );
@@ -32,28 +30,27 @@ public class EventMergeController {
 
     // 🔐 GET /api/merge-records/{id}
     @GetMapping("/{id}")
-    // @PreAuthorize("isAuthenticated()") // JWT protected
     public EventMergeRecord getMergeRecordById(@PathVariable Long id) {
-        return eventMergeService.getMergeRecordById(id);
+        return eventMergeRecordService.getMergeRecordById(id);
     }
 
     // 🔐 GET /api/merge-records
     @GetMapping
-    // @PreAuthorize("isAuthenticated()") // JWT protected
     public List<EventMergeRecord> getAllMergeRecords() {
-        return eventMergeService.getAllMergeRecords();
+        return eventMergeRecordService.getAllMergeRecords();
     }
 
-    // 🔐 GET /api/merge-records/range?start=2025-01-01&end=2025-01-31
+    // 🔐 GET /api/merge-records/range
     @GetMapping("/range")
-    // @PreAuthorize("isAuthenticated()") // JWT protected
     public List<EventMergeRecord> getMergeRecordsByDate(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate start,
 
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate end
     ) {
-        return eventMergeService.getMergeRecordsByDate(start, end);
+        return eventMergeRecordService.getMergeRecordsByDate(start, end);
     }
 }
