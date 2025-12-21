@@ -2,6 +2,17 @@ package com.example.demo.repository;
 
 import com.example.demo.entity.HarmonizedCalendar;
 import org.springframework.data.jpa.repository.JpaRepository;
-public interface HarmonizedCalendarRepository extends JpaRepository<HarmonizedCalendar, Long>{
-      
+
+import java.time.LocalDate;
+import java.util.List;
+
+public interface HarmonizedCalendarRepository
+        extends JpaRepository<HarmonizedCalendar, Long> {
+
+    // 🔹 Find calendars overlapping a date range
+    List<HarmonizedCalendar>
+    findByEffectiveFromLessThanEqualAndEffectiveToGreaterThanEqual(
+            LocalDate date1,
+            LocalDate date2
+    );
 }
