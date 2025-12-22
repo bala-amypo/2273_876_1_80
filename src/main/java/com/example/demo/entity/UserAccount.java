@@ -33,13 +33,13 @@ public class UserAccount {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    /* -------------------- Constructors -------------------- */
+    
 
-    // No-arg constructor
+    
     public UserAccount() {
     }
 
-    // Parameterized constructor
+    
     public UserAccount(Long id, String fullName, String email,
                        String password, String role,
                        String department, LocalDateTime createdAt) {
