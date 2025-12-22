@@ -17,15 +17,11 @@ public class BranchProfileController {
         this.branchProfileService = branchProfileService;
     }
 
-    // 1️⃣ POST /api/branches
-    // 🔐 Access: Protected by JWT
     @PostMapping
     public BranchProfile createBranch(@RequestBody BranchProfile branch) {
         return branchProfileService.createBranch(branch);
     }
 
-    // 2️⃣ PUT /api/branches/{id}/status
-    // 🔐 Access: Protected by JWT
     @PutMapping("/{id}/status")
     public BranchProfile updateBranchStatus(
             @PathVariable Long id,
@@ -33,23 +29,14 @@ public class BranchProfileController {
 
         return branchProfileService.updateBranchStatus(id, active);
     }
-
-    // 3️⃣ GET /api/branches/{id}
-    // 🔐 Access: Protected by JWT
     @GetMapping("/{id}")
     public BranchProfile getBranchById(@PathVariable Long id) {
         return branchProfileService.getBranchById(id);
     }
-
-    // 4️⃣ GET /api/branches
-    // 🔐 Access: Protected by JWT
     @GetMapping
     public List<BranchProfile> getAllBranches() {
         return branchProfileService.getAllBranches();
     }
-
-    // 5️⃣ GET /api/branches/lookup/{branchCode}
-    // 🔐 Access: Protected by JWT
     @GetMapping("/lookup/{branchCode}")
     public BranchProfile findByBranchCode(@PathVariable String branchCode) {
         return branchProfileService.findByBranchCode(branchCode);
