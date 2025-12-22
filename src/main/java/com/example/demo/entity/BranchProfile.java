@@ -48,7 +48,7 @@ public class BranchProfile {
     this.active=active;
 
 }
-    // Getters and Setters
+    
     public Long getId() {
         return id;
     }

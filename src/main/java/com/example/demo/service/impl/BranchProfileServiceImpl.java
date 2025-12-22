@@ -18,13 +18,13 @@ public class BranchProfileServiceImpl implements BranchProfileService {
         this.branchProfileRepository = branchProfileRepository;
     }
 
-    // createBranch
+    
     @Override
     public BranchProfile createBranch(BranchProfile branch) {
         return branchProfileRepository.save(branch);
     }
 
-    //updateBranchStatus
+    
     @Override
     public BranchProfile updateBranchStatus(Long id, boolean active) {
         BranchProfile branch = branchProfileRepository.findById(id)
@@ -34,19 +34,19 @@ public class BranchProfileServiceImpl implements BranchProfileService {
         return branchProfileRepository.save(branch);
     }
 
-    //getAllBranches
+    
     @Override
     public List<BranchProfile> getAllBranches() {
         return branchProfileRepository.findAll();
     }
 
-    //getBranchById
+    
     @Override
     public BranchProfile getBranchById(Long id) {
         return branchProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
     }
-    //findByBranchCode
+    
     @Override
     public BranchProfile findByBranchCode(String branchCode) {
         return branchProfileRepository.findByBranchCode(branchCode)
