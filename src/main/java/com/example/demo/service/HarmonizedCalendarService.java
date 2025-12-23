@@ -15,4 +15,3 @@ public interface HarmonizedCalendarService {
 
     List<HarmonizedCalendar> getCalendarsWithinRange(LocalDate start, LocalDate end);
 }
-
