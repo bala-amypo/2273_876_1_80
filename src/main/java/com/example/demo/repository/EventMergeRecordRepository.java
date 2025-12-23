@@ -11,7 +11,6 @@ public interface EventMergeRecordRepository
 
     // 🔹 Extra method for date-range filtering
     List<EventMergeRecord> findByMergedStartDateBetween(
-            LocalDate start,
-            LocalDate end
-    );
+        LocalDate start, LocalDate end);
+
 }
