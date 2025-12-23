@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.HarmonizedCalendar;
 import com.example.demo.service.HarmonizedCalendarService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,14 +12,20 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/harmonized-calendars")
-@RequiredArgsConstructor
 public class HarmonizedCalendarController {
 
     private final HarmonizedCalendarService harmonizedCalendarService;
 
+    // Constructor Injection (NO Lombok)
+    public HarmonizedCalendarController(
+            HarmonizedCalendarService harmonizedCalendarService) {
+        this.harmonizedCalendarService = harmonizedCalendarService;
+    }
+
     /**
      * 1. Generate Harmonized Calendar
      * POST /api/harmonized-calendars/generate
+     * Body: { "title": "", "generatedBy": "" }
      */
     @PostMapping("/generate")
     public ResponseEntity<HarmonizedCalendar> generateCalendar(
@@ -40,7 +45,9 @@ public class HarmonizedCalendarController {
      * GET /api/harmonized-calendars/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<HarmonizedCalendar> getCalendarById(@PathVariable Long id) {
+    public ResponseEntity<HarmonizedCalendar> getCalendarById(
+            @PathVariable Long id) {
+
         HarmonizedCalendar calendar =
                 harmonizedCalendarService.getCalendarById(id);
 
@@ -61,11 +68,17 @@ public class HarmonizedCalendarController {
     /**
      * 4. Get Calendars Within Date Range
      * GET /api/harmonized-calendars/range
+     * ?start=2025-01-01&end=2025-12-31
      */
     @GetMapping("/range")
     public ResponseEntity<List<HarmonizedCalendar>> getCalendarsWithinRange(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate start,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate end) {
 
         return ResponseEntity.ok(
                 harmonizedCalendarService.getCalendarsWithinRange(start, end)
