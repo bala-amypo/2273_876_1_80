@@ -61,3 +61,4 @@ public class HarmonizedCalendarServiceImpl implements HarmonizedCalendarService 
                 .findByEffectiveFromLessThanEqualAndEffectiveToGreaterThanEqual(start, end);
     }
 }
+ 
