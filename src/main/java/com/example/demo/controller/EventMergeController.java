@@ -2,17 +2,14 @@ package com.example.demo.controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
-
-
-import com.example.demo.dto.EventMergeRequest;
-import com.example.demo.entity.EventMergeRecord;
-import com.example.demo.service.EventMergeService;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.entity.EventMergeRecord;
+import com.example.demo.service.EventMergeService;
 
 @RestController
 @RequestMapping("/api/merge-records")
@@ -32,18 +29,27 @@ public class EventMergeController {
        Access: Protected by JWT
     --------------------------------------------------------- */
 
-@PostMapping
-public ResponseEntity<EventMergeRecord> mergeEvents(
-        @RequestBody EventMergeRequest request) {
+    @PostMapping
+    public ResponseEntity<EventMergeRecord> mergeEvents(
+            @RequestBody Map<String, Object> request) {
 
-    EventMergeRecord record =
-            eventMergeService.mergeEvents(
-                    request.getEventIds(),
-                    request.getReason()
-            );
+        // Extract eventIds (JSON numbers → Integer)
+        @SuppressWarnings("unchecked")
+        List<Integer> eventIdsInt =
+                (List<Integer>) request.get("eventIds");
 
-    return ResponseEntity.ok(record);
-}
+        String reason = (String) request.get("reason");
+
+        // Convert Integer → Long
+        List<Long> eventIds = eventIdsInt.stream()
+                .map(Integer::longValue)
+                .toList();
+
+        EventMergeRecord record =
+                eventMergeService.mergeEvents(eventIds, reason);
+
+        return ResponseEntity.ok(record);
+    }
 
     /* --------------------------------------------------------
        2. GET /api/merge-records/{id}
