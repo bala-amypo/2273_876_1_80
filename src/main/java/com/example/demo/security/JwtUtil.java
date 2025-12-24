@@ -3,7 +3,7 @@ package com.example.demo.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -11,39 +11,32 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // Secret key for signing JWTs (use environment variable or config in real projects)
-    private final String SECRET_KEY = "mySecretKey123456"; 
-    // Token validity in milliseconds (e.g., 24 hours)
-    private final long EXPIRATION_TIME = 24 * 60 * 60 * 1000;
+    private final String secretKey = "secret-key-123456";
 
-    // Generate token with user info
-    public String generateToken(Long userId, String email, String role) {
+    @Value("${jwt.expiration}")
+    private long expiration;
+
+    public String generateToken(String email) {
         return Jwts.builder()
-                .claim("userId", userId)
-                .claim("email", email)
-                .claim("role", role)
+                .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
-    // Validate token and return claims
-    public Claims getClaims(String token) {
+    public String extractEmail(String token) {
+        return getClaims(token).getSubject();
+    }
+
+    public boolean isTokenExpired(String token) {
+        return getClaims(token).getExpiration().before(new Date());
+    }
+
+    private Claims getClaims(String token) {
         return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    // Extract username/email from token
-    public String getEmail(String token) {
-        return getClaims(token).get("email", String.class);
-    }
-
-    // Check if token is expired
-    public boolean isTokenExpired(String token) {
-        Date expiration = getClaims(token).getExpiration();
-        return expiration.before(new Date());
     }
 }
