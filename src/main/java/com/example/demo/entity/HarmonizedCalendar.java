@@ -12,35 +12,23 @@ public class HarmonizedCalendar {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column(name = "generated_by", nullable = false)
     private String generatedBy;
 
-    @Column(name = "generated_at", updatable = false)
     private LocalDateTime generatedAt;
 
-    @Column(name = "effective_from", nullable = false)
     private LocalDate effectiveFrom;
-
-    @Column(name = "effective_to", nullable = false)
     private LocalDate effectiveTo;
 
     @Column(columnDefinition = "TEXT")
     private String eventsJson;
 
-    /* -------------------- Constructors -------------------- */
+    public HarmonizedCalendar() {}
 
-    // No-arg constructor
-    public HarmonizedCalendar() {
-    }
-
-    // Parameterized constructor
     public HarmonizedCalendar(Long id, String title, String generatedBy,
-                              LocalDateTime generatedAt,
-                              LocalDate effectiveFrom, LocalDate effectiveTo,
-                              String eventsJson) {
+                              LocalDateTime generatedAt, LocalDate effectiveFrom,
+                              LocalDate effectiveTo, String eventsJson) {
         this.id = id;
         this.title = title;
         this.generatedBy = generatedBy;
@@ -50,71 +38,33 @@ public class HarmonizedCalendar {
         this.eventsJson = eventsJson;
     }
 
-    /* -------------------- Lifecycle Hooks -------------------- */
-
     @PrePersist
-    protected void onCreate() {
-        this.generatedAt = LocalDateTime.now();
-
-        if (effectiveFrom != null && effectiveTo != null &&
-            effectiveFrom.isAfter(effectiveTo)) {
-            throw new IllegalStateException(
-                "effectiveFrom date must be less than or equal to effectiveTo date"
-            );
+    public void prePersist() {
+        if (this.generatedAt == null) {
+            this.generatedAt = LocalDateTime.now();
         }
     }
 
-    //-------------------- Getters & Setters -------------------- */
+    // Getters & Setters
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getGeneratedBy() { return generatedBy; }
+    public void setGeneratedBy(String generatedBy) { this.generatedBy = generatedBy; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public LocalDateTime getGeneratedAt() { return generatedAt; }
+    public void setGeneratedAt(LocalDateTime generatedAt) { this.generatedAt = generatedAt; }
 
-    public String getGeneratedBy() {
-        return generatedBy;
-    }
+    public LocalDate getEffectiveFrom() { return effectiveFrom; }
+    public void setEffectiveFrom(LocalDate effectiveFrom) { this.effectiveFrom = effectiveFrom; }
 
-    public void setGeneratedBy(String generatedBy) {
-        this.generatedBy = generatedBy;
-    }
+    public LocalDate getEffectiveTo() { return effectiveTo; }
+    public void setEffectiveTo(LocalDate effectiveTo) { this.effectiveTo = effectiveTo; }
 
-    public LocalDateTime getGeneratedAt() {
-        return generatedAt;
-    }
-
-    public LocalDate getEffectiveFrom() {
-        return effectiveFrom;
-    }
-
-    public void setEffectiveFrom(LocalDate effectiveFrom) {
-        this.effectiveFrom = effectiveFrom;
-    }
-
-    public LocalDate getEffectiveTo() {
-        return effectiveTo;
-    }
-
-    public void setEffectiveTo(LocalDate effectiveTo) {
-        this.effectiveTo = effectiveTo;
-    }
-
-    public String getEventsJson() {
-        return eventsJson;
-    }
-
-    public void setEventsJson(String eventsJson) {
-        this.eventsJson = eventsJson;
-    }
+    public String getEventsJson() { return eventsJson; }
+    public void setEventsJson(String eventsJson) { this.eventsJson = eventsJson; }
 }
