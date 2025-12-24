@@ -1,16 +1,15 @@
 package com.example.demo.controller;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import com.example.demo.entity.EventMergeRecord;
+import com.example.demo.service.EventMergeService;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.dto.ApiResponse;
-import com.example.demo.entity.EventMergeRecord;
-import com.example.demo.service.EventMergeService;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/merge-records")
@@ -24,22 +23,14 @@ public class EventMergeController {
 
     /* --------------------------------------------------------
        1. POST /api/merge-records
+       Body: eventIds + reason
     --------------------------------------------------------- */
-
     @PostMapping
-    public ResponseEntity<ApiResponse> mergeEvents(
-            @RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> mergeEvents(@RequestBody Map<String, Object> request) {
 
-        /* ---- Validation ---- */
-
+        // 1️⃣ Validate eventIds
         if (!request.containsKey("eventIds") || request.get("eventIds") == null) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "eventIds is required", null));
-        }
-
-        if (!request.containsKey("reason") || request.get("reason") == null) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "reason is required", null));
+            return ResponseEntity.badRequest().body("eventIds is required");
         }
 
         @SuppressWarnings("unchecked")
@@ -47,89 +38,63 @@ public class EventMergeController {
         try {
             eventIdsInt = (List<Integer>) request.get("eventIds");
         } catch (ClassCastException e) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "eventIds must be an array of numbers", null));
+            return ResponseEntity.badRequest().body("eventIds must be an array of numbers");
         }
 
         if (eventIdsInt.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "eventIds cannot be empty", null));
+            return ResponseEntity.badRequest().body("eventIds cannot be empty");
+        }
+
+        // 2️⃣ Validate reason
+        if (!request.containsKey("reason") || request.get("reason") == null) {
+            return ResponseEntity.badRequest().body("reason is required");
         }
 
         String reason = request.get("reason").toString().trim();
         if (reason.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse(false, "reason cannot be blank", null));
+            return ResponseEntity.badRequest().body("reason cannot be blank");
         }
 
-        /* ---- Convert Integer → Long ---- */
-
+        // 3️⃣ Convert Integer -> Long
         List<Long> eventIds = eventIdsInt.stream()
                 .map(Integer::longValue)
                 .toList();
 
-        /* ---- Service call ---- */
+        // 4️⃣ Call service to insert data
+        EventMergeRecord record = eventMergeService.mergeEvents(eventIds, reason);
 
-        EventMergeRecord record =
-                eventMergeService.mergeEvents(eventIds, reason);
-
-        return ResponseEntity.ok(
-                new ApiResponse(true, "Events merged successfully", record)
-        );
+        // 5️⃣ Return inserted record
+        return ResponseEntity.ok(record);
     }
 
     /* --------------------------------------------------------
        2. GET /api/merge-records/{id}
     --------------------------------------------------------- */
-
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getMergeRecordById(
-            @PathVariable Long id) {
-
-        EventMergeRecord record =
-                eventMergeService.getMergeRecordById(id);
-
-        return ResponseEntity.ok(
-                new ApiResponse(true, "Merge record fetched", record)
-        );
+    public ResponseEntity<EventMergeRecord> getMergeRecordById(@PathVariable Long id) {
+        EventMergeRecord record = eventMergeService.getMergeRecordById(id);
+        return ResponseEntity.ok(record);
     }
 
     /* --------------------------------------------------------
        3. GET /api/merge-records
     --------------------------------------------------------- */
-
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllMergeRecords() {
-
-        return ResponseEntity.ok(
-                new ApiResponse(
-                        true,
-                        "All merge records fetched",
-                        eventMergeService.getAllMergeRecords()
-                )
-        );
+    public ResponseEntity<List<EventMergeRecord>> getAllMergeRecords() {
+        List<EventMergeRecord> records = eventMergeService.getAllMergeRecords();
+        return ResponseEntity.ok(records);
     }
 
     /* --------------------------------------------------------
        4. GET /api/merge-records/range
+       Query parameters: start, end (LocalDate)
     --------------------------------------------------------- */
-
     @GetMapping("/range")
-    public ResponseEntity<ApiResponse> getMergeRecordsByDateRange(
-            @RequestParam("start")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate start,
+    public ResponseEntity<List<EventMergeRecord>> getMergeRecordsByDateRange(
+            @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
 
-            @RequestParam("end")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate end) {
-
-        return ResponseEntity.ok(
-                new ApiResponse(
-                        true,
-                        "Merge records fetched by date range",
-                        eventMergeService.getMergeRecordsByDate(start, end)
-                )
-        );
+        List<EventMergeRecord> records = eventMergeService.getMergeRecordsByDate(start, end);
+        return ResponseEntity.ok(records);
     }
 }
