@@ -2,96 +2,55 @@ package com.example.demo.service.impl;
 
 import com.example.demo.entity.AcademicEvent;
 import com.example.demo.entity.EventMergeRecord;
-import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
 import com.example.demo.repository.AcademicEventRepository;
 import com.example.demo.repository.EventMergeRecordRepository;
 import com.example.demo.service.EventMergeService;
-
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EventMergeServiceImpl implements EventMergeService {
 
-    private final EventMergeRecordRepository eventMergeRecordRepository;
     private final AcademicEventRepository academicEventRepository;
+    private final EventMergeRecordRepository eventMergeRecordRepository;
 
-    /* ---------------- Constructor Injection ---------------- */
-
-    public EventMergeServiceImpl(EventMergeRecordRepository eventMergeRecordRepository,
-                                 AcademicEventRepository academicEventRepository) {
-        this.eventMergeRecordRepository = eventMergeRecordRepository;
+    public EventMergeServiceImpl(AcademicEventRepository academicEventRepository,
+                                 EventMergeRecordRepository eventMergeRecordRepository) {
         this.academicEventRepository = academicEventRepository;
+        this.eventMergeRecordRepository = eventMergeRecordRepository;
     }
-
-    /* ---------------- Merge Events ---------------- */
 
     @Override
     public EventMergeRecord mergeEvents(List<Long> eventIds, String reason) {
 
-        // Validate all event IDs exist
-        List<AcademicEvent> events = eventIds.stream()
-                .map(id -> academicEventRepository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException("Event not found with id: " + id)))
-                .collect(Collectors.toList());
+        if (eventIds == null || eventIds.size() < 2) {
+            throw new ValidationException("At least two events are required for merging");
+        }
 
-        // Merge start date = earliest start date
-        LocalDate mergedStartDate = events.stream()
+        List<AcademicEvent> events = academicEventRepository.findAllById(eventIds);
+
+        if (events.size() != eventIds.size()) {
+            throw new ValidationException("One or more events not found");
+        }
+
+        LocalDate start = events.stream()
                 .map(AcademicEvent::getStartDate)
                 .min(LocalDate::compareTo)
                 .orElseThrow();
 
-        // Merge end date = latest end date
-        LocalDate mergedEndDate = events.stream()
+        LocalDate end = events.stream()
                 .map(AcademicEvent::getEndDate)
                 .max(LocalDate::compareTo)
                 .orElseThrow();
 
-        // Combine event titles
-        String mergedTitle = events.stream()
-                .map(AcademicEvent::getTitle)
-                .collect(Collectors.joining(" + "));
+        EventMergeRecord record = new EventMergeRecord();
+        record.setMergedStartDate(start);
+        record.setMergedEndDate(end);
+        record.setReason(reason);
 
-        // Comma-separated event IDs
-        String sourceEventIds = eventIds.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-
-        EventMergeRecord mergeRecord = new EventMergeRecord();
-        mergeRecord.setSourceEventIds(sourceEventIds);
-        mergeRecord.setMergedTitle(mergedTitle);
-        mergeRecord.setMergedStartDate(mergedStartDate);
-        mergeRecord.setMergedEndDate(mergedEndDate);
-        mergeRecord.setMergeReason(reason);
-
-        return eventMergeRecordRepository.save(mergeRecord);
-    }
-
-    /* ---------------- Fetch All Records ---------------- */
-
-    @Override
-    public List<EventMergeRecord> getAllMergeRecords() {
-        return eventMergeRecordRepository.findAll();
-    }
-
-    /* ---------------- Fetch By ID ---------------- */
-
-    @Override
-    public EventMergeRecord getMergeRecordById(Long id) {
-        return eventMergeRecordRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Merge record not found"));
-    }
-
-    /* ---------------- Fetch By Date Range ---------------- */
-
-    @Override
-    public List<EventMergeRecord> getMergeRecordsByDate(LocalDate start, LocalDate end) {
-        return eventMergeRecordRepository
-                .findByMergedStartDateBetween(start, end);
+        return eventMergeRecordRepository.save(record);
     }
 }
