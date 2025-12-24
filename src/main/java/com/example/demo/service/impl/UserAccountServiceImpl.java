@@ -3,17 +3,14 @@ package com.example.demo.service.impl;
 import com.example.demo.entity.UserAccount;
 import com.example.demo.repository.UserAccountRepository;
 import com.example.demo.service.UserAccountService;
-import com.example.demo.exception.ResourceNotFoundException;
-
 import jakarta.validation.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-
-
 public class UserAccountServiceImpl implements UserAccountService {
 
     private final UserAccountRepository userAccountRepository;
@@ -25,36 +22,28 @@ public class UserAccountServiceImpl implements UserAccountService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ... other methods
-}
-
     @Override
     public UserAccount register(UserAccount user) {
         if (existsByEmail(user.getEmail())) {
             throw new ValidationException("Email already in use");
         }
-
-        // Set default role if null
-        if (user.getRole() == null || user.getRole().isBlank()) {
+        if (user.getRole() == null) {
             user.setRole("REVIEWER");
         }
-
-        // Hash password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         return userAccountRepository.save(user);
     }
 
     @Override
     public UserAccount findByEmail(String email) {
         return userAccountRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @Override
     public UserAccount getUser(Long id) {
         return userAccountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @Override
