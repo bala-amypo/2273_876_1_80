@@ -29,22 +29,23 @@ public class UserAccountController {
     }
 
     // 1. Register
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        if (userAccountService.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body(new ApiResponse(false, "Email is already in use"));
-        }
+    @PostMapping("/login")
+public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
+    UserAccount user = userAccountService.findByEmail(request.getEmail());
 
-        UserAccount user = new UserAccount();
-        user.setFullName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
-        user.setDepartment(request.getDepartment());
-
-        UserAccount savedUser = userAccountService.register(user);
-        return ResponseEntity.ok(savedUser);
+    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        return ResponseEntity.badRequest().body(new ApiResponse(false, "Invalid credentials"));
     }
+
+    String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+
+    Map<String, Object> responseData = new HashMap<>();
+    responseData.put("token", token);
+    responseData.put("user", user);
+
+    return ResponseEntity.ok(new ApiResponse(true, "Login successful", responseData));
+}
+
 
     // 2. Login
     @PostMapping("/login")
