@@ -64,3 +64,4 @@ public class EventMergeController {
         return ResponseEntity.ok(records);
     }
 }
+
