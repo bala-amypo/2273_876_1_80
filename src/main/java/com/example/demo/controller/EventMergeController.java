@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.dto.ApiResponse;
 import com.example.demo.entity.EventMergeRecord;
 import com.example.demo.service.EventMergeService;
 
@@ -17,75 +18,104 @@ public class EventMergeController {
 
     private final EventMergeService eventMergeService;
 
-    /* ---------------- Constructor Injection ---------------- */
-
     public EventMergeController(EventMergeService eventMergeService) {
         this.eventMergeService = eventMergeService;
     }
 
     /* --------------------------------------------------------
        1. POST /api/merge-records
-       Body: eventIds + reason
-       Access: Protected by JWT
     --------------------------------------------------------- */
 
     @PostMapping
-    public ResponseEntity<EventMergeRecord> mergeEvents(
+    public ResponseEntity<ApiResponse> mergeEvents(
             @RequestBody Map<String, Object> request) {
 
-        // Extract eventIds (JSON numbers → Integer)
+        /* ---- Validation ---- */
+
+        if (!request.containsKey("eventIds") || request.get("eventIds") == null) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "eventIds is required", null));
+        }
+
+        if (!request.containsKey("reason") || request.get("reason") == null) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "reason is required", null));
+        }
+
         @SuppressWarnings("unchecked")
-        List<Integer> eventIdsInt =
-                (List<Integer>) request.get("eventIds");
+        List<Integer> eventIdsInt;
+        try {
+            eventIdsInt = (List<Integer>) request.get("eventIds");
+        } catch (ClassCastException e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "eventIds must be an array of numbers", null));
+        }
 
-        String reason = (String) request.get("reason");
+        if (eventIdsInt.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "eventIds cannot be empty", null));
+        }
 
-        // Convert Integer → Long
+        String reason = request.get("reason").toString().trim();
+        if (reason.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse(false, "reason cannot be blank", null));
+        }
+
+        /* ---- Convert Integer → Long ---- */
+
         List<Long> eventIds = eventIdsInt.stream()
                 .map(Integer::longValue)
                 .toList();
 
+        /* ---- Service call ---- */
+
         EventMergeRecord record =
                 eventMergeService.mergeEvents(eventIds, reason);
 
-        return ResponseEntity.ok(record);
+        return ResponseEntity.ok(
+                new ApiResponse(true, "Events merged successfully", record)
+        );
     }
 
     /* --------------------------------------------------------
        2. GET /api/merge-records/{id}
-       Access: Protected by JWT
     --------------------------------------------------------- */
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventMergeRecord> getMergeRecordById(
+    public ResponseEntity<ApiResponse> getMergeRecordById(
             @PathVariable Long id) {
 
         EventMergeRecord record =
                 eventMergeService.getMergeRecordById(id);
 
-        return ResponseEntity.ok(record);
+        return ResponseEntity.ok(
+                new ApiResponse(true, "Merge record fetched", record)
+        );
     }
 
     /* --------------------------------------------------------
        3. GET /api/merge-records
-       Access: Protected by JWT
     --------------------------------------------------------- */
 
     @GetMapping
-    public ResponseEntity<List<EventMergeRecord>> getAllMergeRecords() {
+    public ResponseEntity<ApiResponse> getAllMergeRecords() {
+
         return ResponseEntity.ok(
-                eventMergeService.getAllMergeRecords()
+                new ApiResponse(
+                        true,
+                        "All merge records fetched",
+                        eventMergeService.getAllMergeRecords()
+                )
         );
     }
 
     /* --------------------------------------------------------
        4. GET /api/merge-records/range
-       Query Params: start, end (LocalDate)
-       Access: Protected by JWT
     --------------------------------------------------------- */
 
     @GetMapping("/range")
-    public ResponseEntity<List<EventMergeRecord>> getMergeRecordsByDateRange(
+    public ResponseEntity<ApiResponse> getMergeRecordsByDateRange(
             @RequestParam("start")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate start,
@@ -94,9 +124,12 @@ public class EventMergeController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate end) {
 
-        List<EventMergeRecord> records =
-                eventMergeService.getMergeRecordsByDate(start, end);
-
-        return ResponseEntity.ok(records);
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        true,
+                        "Merge records fetched by date range",
+                        eventMergeService.getMergeRecordsByDate(start, end)
+                )
+        );
     }
 }
