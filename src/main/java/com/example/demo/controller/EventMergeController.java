@@ -26,24 +26,18 @@ public class EventMergeController {
        Body: eventIds + reason
     --------------------------------------------------------- */
     @PostMapping
-    public ResponseEntity<?> mergeEvents(@RequestBody Map<String, Object> request) {
+public ResponseEntity<EventMergeRecord> mergeEvents(
+        @RequestBody EventMergeRequest request) {
 
-        // 1️⃣ Validate eventIds
-        if (!request.containsKey("eventIds") || request.get("eventIds") == null) {
-            return ResponseEntity.badRequest().body("eventIds is required");
-        }
+    EventMergeRecord mergeRecord =
+            eventMergeService.mergeEvents(
+                    request.getEventIds(),
+                    request.getReason()
+            );
 
-        @SuppressWarnings("unchecked")
-        List<Integer> eventIdsInt;
-        try {
-            eventIdsInt = (List<Integer>) request.get("eventIds");
-        } catch (ClassCastException e) {
-            return ResponseEntity.badRequest().body("eventIds must be an array of numbers");
-        }
+    return ResponseEntity.ok(mergeRecord);
+}
 
-        if (eventIdsInt.isEmpty()) {
-            return ResponseEntity.badRequest().body("eventIds cannot be empty");
-        }
 
         // 2️⃣ Validate reason
         if (!request.containsKey("reason") || request.get("reason") == null) {
