@@ -29,19 +29,18 @@ public class EventMergeController {
        Access: Protected by JWT
     --------------------------------------------------------- */
 
-    @PostMapping
-    public ResponseEntity<EventMergeRecord> mergeEvents(
-            @RequestBody Map<String, Object> request) {
+@PostMapping
+public ResponseEntity<EventMergeRecord> mergeEvents(
+        @RequestBody EventMergeRequest request) {
 
-        @SuppressWarnings("unchecked")
-        List<Long> eventIds = (List<Long>) request.get("eventIds");
-        String reason = (String) request.get("reason");
+    EventMergeRecord record =
+            eventMergeService.mergeEvents(
+                    request.getEventIds(),
+                    request.getReason()
+            );
 
-        EventMergeRecord mergeRecord =
-                eventMergeService.mergeEvents(eventIds, reason);
-
-        return ResponseEntity.ok(mergeRecord);
-    }
+    return ResponseEntity.ok(record);
+}
 
     /* --------------------------------------------------------
        2. GET /api/merge-records/{id}
