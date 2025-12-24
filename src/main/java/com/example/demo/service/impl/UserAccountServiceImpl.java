@@ -12,15 +12,21 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+
+
 public class UserAccountServiceImpl implements UserAccountService {
 
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
     public UserAccountServiceImpl(UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder) {
         this.userAccountRepository = userAccountRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
+    // ... other methods
+}
 
     @Override
     public UserAccount register(UserAccount user) {
