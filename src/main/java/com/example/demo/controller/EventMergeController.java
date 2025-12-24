@@ -26,40 +26,20 @@ public class EventMergeController {
        Body: eventIds + reason
     --------------------------------------------------------- */
     @PostMapping
-public ResponseEntity<EventMergeRecord> mergeEvents(
-        @RequestBody EventMergeRequest request) {
+public ResponseEntity<?> mergeEvents(@RequestBody Map<String, Object> request) {
 
-    EventMergeRecord mergeRecord =
-            eventMergeService.mergeEvents(
-                    request.getEventIds(),
-                    request.getReason()
-            );
+    // validation...
+    List<Integer> eventIdsInt = (List<Integer>) request.get("eventIds");
+    String reason = request.get("reason").toString().trim();
+
+    List<Long> eventIds = eventIdsInt.stream().map(Integer::longValue).toList();
+
+    // Use safe variable name
+    EventMergeRecord mergeRecord = eventMergeService.mergeEvents(eventIds, reason);
 
     return ResponseEntity.ok(mergeRecord);
 }
 
-
-        // 2️⃣ Validate reason
-        if (!request.containsKey("reason") || request.get("reason") == null) {
-            return ResponseEntity.badRequest().body("reason is required");
-        }
-
-        String reason = request.get("reason").toString().trim();
-        if (reason.isEmpty()) {
-            return ResponseEntity.badRequest().body("reason cannot be blank");
-        }
-
-        // 3️⃣ Convert Integer -> Long
-        List<Long> eventIds = eventIdsInt.stream()
-                .map(Integer::longValue)
-                .toList();
-
-        // 4️⃣ Call service to insert data
-        EventMergeRecord record = eventMergeService.mergeEvents(eventIds, reason);
-
-        // 5️⃣ Return inserted record
-        return ResponseEntity.ok(record);
-    }
 
     /* --------------------------------------------------------
        2. GET /api/merge-records/{id}
