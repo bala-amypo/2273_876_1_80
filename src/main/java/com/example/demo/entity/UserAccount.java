@@ -2,6 +2,9 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.HashMap;
+
 
 @Entity
 @Table(

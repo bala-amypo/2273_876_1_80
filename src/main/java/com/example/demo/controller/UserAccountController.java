@@ -46,7 +46,6 @@ public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
     return ResponseEntity.ok(new ApiResponse(true, "Login successful", responseData));
 }
 
-
     // 2. Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
