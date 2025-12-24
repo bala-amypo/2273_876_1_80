@@ -1,15 +1,14 @@
 package com.example.demo.controller;
 
+
+
+import com.example.demo.dto.EventMergeRequest;
 import com.example.demo.entity.EventMergeRecord;
 import com.example.demo.service.EventMergeService;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/merge-records")
