@@ -11,39 +11,39 @@ import java.util.List;
 @Service
 public class BranchProfileServiceImpl implements BranchProfileService {
 
-    private final BranchProfileRepository repo;
+    private final BranchProfileRepository branchProfileRepository;
 
-    public BranchProfileServiceImpl(BranchProfileRepository repo) {
-        this.repo = repo;
+    public BranchProfileServiceImpl(BranchProfileRepository branchProfileRepository) {
+        this.branchProfileRepository = branchProfileRepository;
     }
 
     @Override
     public BranchProfile createBranch(BranchProfile branch) {
-        return repo.save(branch);
+        return branchProfileRepository.save(branch);
     }
 
     @Override
     public BranchProfile updateBranchStatus(Long id, boolean active) {
-        BranchProfile bp = repo.findById(id)
+        BranchProfile branch = branchProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
-        bp.setActive(active);
-        return repo.save(bp);
+        branch.setActive(active);
+        return branchProfileRepository.save(branch);
     }
 
     @Override
     public List<BranchProfile> getAllBranches() {
-        return repo.findAll();
+        return branchProfileRepository.findAll();
     }
 
     @Override
     public BranchProfile getBranchById(Long id) {
-        return repo.findById(id)
+        return branchProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
     }
 
     @Override
-    public BranchProfile findByBranchCode(String code) {
-        return repo.findByBranchCode(code)
+    public BranchProfile findByBranchCode(String branchCode) {
+        return branchProfileRepository.findByBranchCode(branchCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
     }
 }
