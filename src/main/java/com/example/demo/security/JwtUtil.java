@@ -1,43 +1,38 @@
-
 package com.example.demo.security;
 
 import com.example.demo.entity.UserAccount;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.SignatureAlgorithm;
+
+import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
+import java.util.function.Function;
 
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:ThisIsASecretKeyForJwtAuthentication123456}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}")
-    private long jwtExpirationMs;
+    private SecretKey key;
+
+    // ******** REQUIRED BY TEST ********
+    public void initKey() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+        if (key == null) initKey();
+        return key;
     }
 
-    public String generateToken(UserAccount user) {
-
-        return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("role", user.getRole())
-                .claim("userId", user.getId())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    public Claims extractClaims(String token) {
+    private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -45,56 +40,59 @@ public class JwtUtil {
                 .getPayload();
     }
 
+    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        return resolver.apply(extractAllClaims(token));
+    }
+
+    // ******** REQUIRED BY TEST ********
     public String extractUsername(String token) {
-        return extractClaims(token).getSubject();
+        return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
+    // ******** REQUIRED BY TEST ********
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
-    public boolean validateToken(String token, String username) {
-        String tokenUser = extractUsername(token);
-        return tokenUser.equals(username) && !isTokenExpired(token);
+    // ******** REQUIRED BY TEST ********
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", Long.class));
     }
-    // ===== REQUIRED BY TESTS =====
 
-// old test init
-public void initKey() {
-    getSigningKey();
-}
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
 
-// generate with claims
-public String generateToken(Map<String, Object> claims, String subject) {
-    return Jwts.builder()
-            .claims(claims)
-            .subject(subject)
-            .issuedAt(new Date(System.currentTimeMillis()))
-            .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-            .signWith(getSigningKey())
-            .compact();
-}
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
 
-// alias to keep test happy
-public String generateTokenForUser(UserAccount user) {
-    return generateToken(user);
-}
+    // ******** REQUIRED ********
+    public String generateTokenForUser(UserAccount user) {
+        return generateToken(Map.of(
+                "role", user.getRole(),
+                "userId", user.getId()
+        ), user.getEmail());
+    }
 
-public String extractRole(String token) {
-    return extractClaim(token, claims -> claims.get("role", String.class));
-}
+    // ******** REQUIRED BY TEST ********
+    public String generateToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hr
+                .signWith(getSigningKey())
+                .compact();
+    }
 
-public Long extractUserId(String token) {
-    return extractClaim(token, claims -> claims.get("userId", Long.class));
-}
+    // ******** REQUIRED BY TEST ********
+    public boolean isTokenValid(String token, String username) {
+        return extractUsername(token).equals(username) && !isTokenExpired(token);
+    }
 
-public boolean isTokenValid(String token, String username) {
-    return validateToken(token, username);
-}
-
-// TEST expects this
-public Claims parseToken(String token) {
-    return extractAllClaims(token);
-}
-
+    // ******** REQUIRED BY TEST ********
+    public Claims parseToken(String token) {
+        return extractAllClaims(token);
+    }
 }

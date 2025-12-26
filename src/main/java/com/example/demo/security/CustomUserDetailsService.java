@@ -1,36 +1,37 @@
 package com.example.demo.security;
 
+import com.example.demo.entity.UserAccount;
 import com.example.demo.repository.UserAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserAccountRepository userRepo;
+    @Autowired
+    private UserAccountRepository userAccountRepository;
 
-    public CustomUserDetailsService(UserAccountRepository userRepo) {
-        this.userRepo = userRepo;
-    }
+    public CustomUserDetailsService() {}
 
-    // REQUIRED FOR TESTS
-    public CustomUserDetailsService() {
-        this.userRepo = null;
+    public CustomUserDetailsService(UserAccountRepository repo) {
+        this.userAccountRepository = repo;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) {
-        if (userRepo == null)
-            return null;
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserAccount user = userAccountRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
 
-        UserAccount user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority(user.getRole()))
-        );
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .authorities(List.of(new SimpleGrantedAuthority(user.getRole())))
+                .build();
     }
 }
