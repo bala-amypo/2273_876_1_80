@@ -5,20 +5,19 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long EXPIRATION = 1000 * 60 * 60; // 1 hour
 
-    // Generate token
+    // ===================== TOKEN GENERATION =====================
     public String generateToken(String username) {
         return Jwts.builder()
                 .subject(username)
@@ -28,38 +27,34 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Extract username
+    // Test files & AuthController expect this
+    public String generateTokenForUser(com.example.demo.entity.UserAccount user) {
+        return generateToken(user.getEmail() != null ? user.getEmail() : user.getUsername());
+    }
+
+    // ===================== TOKEN PARSING =====================
+    private Claims extractAllClaims(String token) {
+        Jws<Claims> jws = Jwts.parser()
+                .verifyWith(key)     // MUST be SecretKey (fixed)
+                .build()
+                .parseSignedClaims(token);
+
+        return jws.getPayload();     // 0.12.x uses getPayload()
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        return resolver.apply(extractAllClaims(token));
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Generic claim extractor
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    // NEW JJWT 0.12.x compatible parsing
-    private Claims extractAllClaims(String token) {
-        Jws<Claims> jws = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token);
-
-        return jws.getPayload();   // IMPORTANT (NOT getBody())
-    }
-
-    // Validate token
     public boolean isTokenValid(String token, String username) {
-        String extracted = extractUsername(token);
-        return extracted.equals(username) && !isTokenExpired(token);
+        return username.equals(extractUsername(token)) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 }
