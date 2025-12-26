@@ -5,7 +5,6 @@ import java.util.List;
 
 @Entity
 public class EventMergeRecord {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -15,14 +14,7 @@ public class EventMergeRecord {
 
     private String reason;
 
-    // Constructors
-    public EventMergeRecord() {}
-    public EventMergeRecord(List<Long> eventIds, String reason) {
-        this.eventIds = eventIds;
-        this.reason = reason;
-    }
-
-    // Getters & Setters
+    // getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public List<Long> getEventIds() { return eventIds; }
