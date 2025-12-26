@@ -1,28 +1,32 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import java.util.List;
+
 @Entity
 public class EventMergeRecord {
-    @Id @GeneratedValue
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String sourceEventIds;
-    private String mergedTitle;
-    private LocalDate mergedStartDate;
-    private LocalDate mergedEndDate;
-    private String mergeReason;
-    private LocalDateTime createdAt;
 
+    @ElementCollection
+    private List<Long> eventIds;
+
+    private String reason;
+
+    // Constructors
     public EventMergeRecord() {}
-
-    public EventMergeRecord(Long id, String ids, String title, LocalDate s, LocalDate e, String reason, LocalDateTime c) {
-        this.id = id; this.sourceEventIds = ids; this.mergedTitle = title;
-        this.mergedStartDate = s; this.mergedEndDate = e;
-        this.mergeReason = reason; this.createdAt = c;
+    public EventMergeRecord(List<Long> eventIds, String reason) {
+        this.eventIds = eventIds;
+        this.reason = reason;
     }
 
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) createdAt = LocalDateTime.now();
-    }
-
-    public void setId(Long id) { this.id = id; }
+    // Getters & Setters
     public Long getId() { return id; }
-    public String getSourceEventIds() { return sourceEventIds; }
+    public void setId(Long id) { this.id = id; }
+    public List<Long> getEventIds() { return eventIds; }
+    public void setEventIds(List<Long> eventIds) { this.eventIds = eventIds; }
+    public String getReason() { return reason; }
+    public void setReason(String reason) { this.reason = reason; }
 }

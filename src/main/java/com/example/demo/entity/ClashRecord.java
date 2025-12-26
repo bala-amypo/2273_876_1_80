@@ -1,29 +1,34 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+
 @Entity
 public class ClashRecord {
-    @Id @GeneratedValue
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long eventAId;
-    private Long eventBId;
-    private String clashType;
-    private String severity;
-    private String details;
-    private LocalDateTime detectedAt;
-    private Boolean resolved;
 
+    private Long event1Id;
+    private Long event2Id;
+
+    private String reason;
+
+    // Constructors
     public ClashRecord() {}
-
-    public ClashRecord(Long id, Long a, Long b, String type, String sev, String det, LocalDateTime d, Boolean r) {
-        this.id = id; this.eventAId = a; this.eventBId = b;
-        this.clashType = type; this.severity = sev; this.details = det;
-        this.detectedAt = d; this.resolved = r;
+    public ClashRecord(Long event1Id, Long event2Id, String reason) {
+        this.event1Id = event1Id;
+        this.event2Id = event2Id;
+        this.reason = reason;
     }
 
-    @PrePersist
-    public void prePersist() {
-        if (detectedAt == null) detectedAt = LocalDateTime.now();
-        if (resolved == null) resolved = false;
-    }
-
-    public Boolean getResolved() { return resolved; }
-    public void setResolved(Boolean r) { this.resolved = r; }
+    // Getters & Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getEvent1Id() { return event1Id; }
+    public void setEvent1Id(Long event1Id) { this.event1Id = event1Id; }
+    public Long getEvent2Id() { return event2Id; }
+    public void setEvent2Id(Long event2Id) { this.event2Id = event2Id; }
+    public String getReason() { return reason; }
+    public void setReason(String reason) { this.reason = reason; }
 }
