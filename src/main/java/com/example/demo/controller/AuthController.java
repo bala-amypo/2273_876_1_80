@@ -1,56 +1,68 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.UserAccount;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserAccountService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private UserAccountService userAccountService;
+    private final UserAccountService userAccountService;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthController(UserAccountService userAccountService,
+                          JwtUtil jwtUtil,
+                          PasswordEncoder passwordEncoder) {
+        this.userAccountService = userAccountService;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    public UserAccount register(@RequestBody RegisterRequest req) {
 
         UserAccount user = new UserAccount();
-        // REMOVE setName() because UserAccount does not have it
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
-        user.setDepartment(request.getDepartment());
+        user.setFullName(req.getName());
+        user.setEmail(req.getEmail());
+        user.setPassword(req.getPassword());
+        user.setRole(req.getRole());
+        user.setDepartment(req.getDepartment());
 
-        UserAccount saved = userAccountService.register(user);
-
-        return ResponseEntity.ok(new ApiResponse(true, "User registered successfully", saved));
+        return userAccountService.register(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public Map<String, Object> login(@RequestBody LoginRequest req) {
 
-        UserAccount user = userAccountService.findByEmail(request.getEmail());
+        UserAccount user = userAccountService.findByEmail(req.getEmail());
 
-        if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(401)
-                    .body(new ApiResponse(false, "Invalid email or password", null));
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
         }
 
         String token = jwtUtil.generateTokenForUser(user);
 
-        return ResponseEntity.ok(new ApiResponse(true, "Login successful", token));
+        return Map.of(
+                "token", token,
+                "user", user
+        );
+    }
+
+    @GetMapping("/users")
+    public Object getAllUsers() {
+        return userAccountService.getAllUsers();
+    }
+
+    @GetMapping("/users/{id}")
+    public UserAccount getUser(@PathVariable Long id) {
+        return userAccountService.getUser(id);
     }
 }
