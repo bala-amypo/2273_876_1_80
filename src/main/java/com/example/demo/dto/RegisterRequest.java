@@ -8,7 +8,6 @@ public class RegisterRequest {
     private String department;
 
     public RegisterRequest() {}
-
     public RegisterRequest(String name, String email, String password, String role, String department) {
         this.name = name;
         this.email = email;
@@ -22,4 +21,10 @@ public class RegisterRequest {
     public String getPassword() { return password; }
     public String getRole() { return role; }
     public String getDepartment() { return department; }
+
+    public void setName(String name) { this.name = name; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPassword(String password) { this.password = password; }
+    public void setRole(String role) { this.role = role; }
+    public void setDepartment(String department) { this.department = department; }
 }
