@@ -1,30 +1,29 @@
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+
 @Entity
 public class HarmonizedCalendar {
-    @Id @GeneratedValue
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String generatedBy;
-    private LocalDateTime generatedAt;
-    private LocalDate effectiveFrom;
-    private LocalDate effectiveTo;
-    @Column(columnDefinition = "TEXT")
-    private String eventsJson;
 
+    // Constructors
     public HarmonizedCalendar() {}
-
-    public HarmonizedCalendar(Long id, String t, String g, LocalDateTime ga,
-                              LocalDate f, LocalDate to, String json) {
-        this.id = id; this.title = t; this.generatedBy = g;
-        this.generatedAt = ga; this.effectiveFrom = f; this.effectiveTo = to;
-        this.eventsJson = json;
+    public HarmonizedCalendar(String title, String generatedBy) {
+        this.title = title;
+        this.generatedBy = generatedBy;
     }
 
-    @PrePersist
-    public void prePersist() {
-        if (generatedAt == null) generatedAt = LocalDateTime.now();
-    }
-
-    public void setId(Long id) { this.id = id; }
+    // Getters & Setters
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
     public String getGeneratedBy() { return generatedBy; }
+    public void setGeneratedBy(String generatedBy) { this.generatedBy = generatedBy; }
 }
