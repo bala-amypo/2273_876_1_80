@@ -57,4 +57,44 @@ public class JwtUtil {
         String tokenUser = extractUsername(token);
         return tokenUser.equals(username) && !isTokenExpired(token);
     }
+    // ===== REQUIRED BY TESTS =====
+
+// old test init
+public void initKey() {
+    getSigningKey();
+}
+
+// generate with claims
+public String generateToken(Map<String, Object> claims, String subject) {
+    return Jwts.builder()
+            .claims(claims)
+            .subject(subject)
+            .issuedAt(new Date(System.currentTimeMillis()))
+            .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+            .signWith(getSigningKey())
+            .compact();
+}
+
+// alias to keep test happy
+public String generateTokenForUser(UserAccount user) {
+    return generateToken(user);
+}
+
+public String extractRole(String token) {
+    return extractClaim(token, claims -> claims.get("role", String.class));
+}
+
+public Long extractUserId(String token) {
+    return extractClaim(token, claims -> claims.get("userId", Long.class));
+}
+
+public boolean isTokenValid(String token, String username) {
+    return validateToken(token, username);
+}
+
+// TEST expects this
+public Claims parseToken(String token) {
+    return extractAllClaims(token);
+}
+
 }
