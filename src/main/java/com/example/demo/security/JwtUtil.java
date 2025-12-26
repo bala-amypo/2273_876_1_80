@@ -29,8 +29,10 @@ public class JwtUtil {
 
     // Test files & AuthController expect this
     public String generateTokenForUser(com.example.demo.entity.UserAccount user) {
-        return generateToken(user.getEmail() != null ? user.getEmail() : user.getUsername());
-    }
+    String identifier = user.getEmail();   // your entity supports this
+    return generateToken(identifier);
+}
+
 
     // ===================== TOKEN PARSING =====================
     private Claims extractAllClaims(String token) {
