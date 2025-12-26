@@ -10,23 +10,28 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleNotFound(ResourceNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ApiResponse(false, ex.getMessage()));
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiResponse> handleValidation(ValidationException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse(false, ex.getMessage()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleGeneral(Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse(false, "Internal server error"));
-    }
+public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+    return new ResponseEntity<>(
+            new ApiResponse(false, ex.getMessage()),
+            HttpStatus.NOT_FOUND
+    );
 }
+
+@ExceptionHandler(ValidationException.class)
+public ResponseEntity<ApiResponse> handleValidationException(ValidationException ex) {
+    return new ResponseEntity<>(
+            new ApiResponse(false, ex.getMessage()),
+            HttpStatus.BAD_REQUEST
+    );
+}
+
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ApiResponse> handleGeneralException(Exception ex) {
+    return new ResponseEntity<>(
+            new ApiResponse(false, ex.getMessage()),
+            HttpStatus.INTERNAL_SERVER_ERROR
+    );
+}
+
+}
+
