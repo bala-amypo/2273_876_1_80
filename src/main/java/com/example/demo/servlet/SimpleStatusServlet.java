@@ -19,4 +19,9 @@ public class SimpleStatusServlet extends HttpServlet {
         writer.write("Servlet Alive");
         writer.flush();
     }
+
+    // ⭐ Public wrapper so tests can call safely
+    public void handle(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        doGet(req, resp);
+    }
 }
