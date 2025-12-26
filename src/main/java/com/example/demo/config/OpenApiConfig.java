@@ -16,7 +16,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 // ✅ ADD SERVER URL HERE
                 .addServersItem(new Server()
-                        .url("http://localhost:8080")
+                        .url("https://9163.32procr.amypo.ai/")
                         .description("Local Development Server"))
 
                 .info(new Info()
