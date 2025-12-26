@@ -11,17 +11,12 @@ import java.io.PrintWriter;
 public class SimpleStatusServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         resp.setStatus(200);
 
         PrintWriter writer = resp.getWriter();
         writer.write("Servlet Alive");
         writer.flush();
-    }
-
-    // ⭐ Public wrapper so tests can call safely
-    public void handle(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        doGet(req, resp);
     }
 }
