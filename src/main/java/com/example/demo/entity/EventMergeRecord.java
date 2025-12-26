@@ -1,24 +1,28 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
+import lombok.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "event_merge_records")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class EventMergeRecord {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ElementCollection
-    private List<Long> eventIds;
+    private String sourceEventIds;
+    private String mergedTitle;
+    private LocalDate mergedStartDate;
+    private LocalDate mergedEndDate;
+    private String mergeReason;
+    private LocalDateTime createdAt;
 
-    private String reason;
-
-    // getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public List<Long> getEventIds() { return eventIds; }
-    public void setEventIds(List<Long> eventIds) { this.eventIds = eventIds; }
-    public String getReason() { return reason; }
-    public void setReason(String reason) { this.reason = reason; }
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
 }
