@@ -1,8 +1,13 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "harmonized_calendars")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class HarmonizedCalendar {
 
     @Id
@@ -11,19 +16,13 @@ public class HarmonizedCalendar {
 
     private String title;
     private String generatedBy;
+    private LocalDateTime generatedAt;
+    private LocalDate effectiveFrom;
+    private LocalDate effectiveTo;
+    private String eventsJson;
 
-    // Constructors
-    public HarmonizedCalendar() {}
-    public HarmonizedCalendar(String title, String generatedBy) {
-        this.title = title;
-        this.generatedBy = generatedBy;
+    @PrePersist
+    public void prePersist() {
+        generatedAt = LocalDateTime.now();
     }
-
-    // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getGeneratedBy() { return generatedBy; }
-    public void setGeneratedBy(String generatedBy) { this.generatedBy = generatedBy; }
 }

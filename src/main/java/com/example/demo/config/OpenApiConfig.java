@@ -1,18 +1,29 @@
 package com.example.demo.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.info.*;
+import io.swagger.v3.oas.models.security.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI customOpenAPI() {
+    public OpenAPI apiInfo() {
         return new OpenAPI()
-                // You need to change the port as per your server
-                .servers(List.of(new Server().url("https://9163.32procr.amypo.ai/")));
-        }
+                .info(new Info()
+                        .title("Multi-Branch Academic Calendar Harmonizer")
+                        .description("Centralized academic calendar platform for managing branches, events, clashes, merges and harmonized schedules.")
+                        .version("1.0.0"))
+                .addSecurityItem(
+                        new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("Bearer Authentication",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                        ));
+    }
 }
