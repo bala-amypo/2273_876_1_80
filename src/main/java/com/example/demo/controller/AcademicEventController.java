@@ -1,29 +1,30 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.AcademicEvent;
-import com.example.demo.service.AcademicEventService;
+import com.example.demo.service.impl.AcademicEventServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
 public class AcademicEventController {
 
-    private final AcademicEventService academicEventService;
-
-    public AcademicEventController(AcademicEventService academicEventService) {
-        this.academicEventService = academicEventService;
-    }
+    @Autowired
+    private AcademicEventServiceImpl academicEventService;
 
     @PostMapping
-    public ResponseEntity<?> submitEvent(@RequestBody AcademicEvent event) {
-        return ResponseEntity.ok(academicEventService.submitEvent(event));
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CALENDAR_MANAGER')")
+    public ResponseEntity<AcademicEvent> createEvent(@RequestBody AcademicEvent event) {
+        return ResponseEntity.ok(academicEventService.createEvent(event));
     }
 
     @GetMapping("/branch/{branchId}")
-    public ResponseEntity<?> getByBranch(@PathVariable Long branchId) {
-        return ResponseEntity.ok(
-                academicEventService.getEventsByBranch(branchId)
-        );
+    @PreAuthorize("hasRole('ADMIN') or hasRole('REVIEWER')")
+    public ResponseEntity<List<AcademicEvent>> getEventsByBranch(@PathVariable Long branchId) {
+        return ResponseEntity.ok(academicEventService.getEventsByBranch(branchId));
     }
 }
