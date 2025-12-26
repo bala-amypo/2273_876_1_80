@@ -5,8 +5,9 @@ import com.example.demo.entity.AcademicEvent;
 import java.util.List;
 
 public interface AcademicEventService {
-
-    AcademicEvent submitEvent(AcademicEvent event);
-
+    AcademicEvent createEvent(AcademicEvent event);
+    AcademicEvent updateEvent(Long id, AcademicEvent e);
+    AcademicEvent getEventById(Long id);
+    List<AcademicEvent> getAllEvents();
     List<AcademicEvent> getEventsByBranch(Long branchId);
 }
