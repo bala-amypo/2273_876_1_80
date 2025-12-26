@@ -3,30 +3,47 @@ package com.example.demo.service.impl;
 import com.example.demo.entity.BranchProfile;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.BranchProfileRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.service.BranchProfileService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class BranchProfileServiceImpl {
+public class BranchProfileServiceImpl implements BranchProfileService {
 
-    @Autowired
-    private BranchProfileRepository branchProfileRepository;
+    private final BranchProfileRepository repo;
 
+    public BranchProfileServiceImpl(BranchProfileRepository repo) {
+        this.repo = repo;
+    }
+
+    @Override
     public BranchProfile createBranch(BranchProfile branch) {
-        branch.prePersist();
-        return branchProfileRepository.save(branch);
+        return repo.save(branch);
     }
 
+    @Override
     public BranchProfile updateBranchStatus(Long id, boolean active) {
-        BranchProfile branch = branchProfileRepository.findById(id)
+        BranchProfile bp = repo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
-        branch.setActive(active);
-        return branchProfileRepository.save(branch);
+        bp.setActive(active);
+        return repo.save(bp);
     }
 
+    @Override
     public List<BranchProfile> getAllBranches() {
-        return branchProfileRepository.findAll();
+        return repo.findAll();
+    }
+
+    @Override
+    public BranchProfile getBranchById(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
+    }
+
+    @Override
+    public BranchProfile findByBranchCode(String code) {
+        return repo.findByBranchCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
     }
 }
