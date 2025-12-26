@@ -49,7 +49,8 @@ public class EventMergeServiceImpl implements EventMergeService {
         EventMergeRecord record = new EventMergeRecord();
         record.setMergedStartDate(start);
         record.setMergedEndDate(end);
-        record.setReason(reason);
+        record.setMergeReason(reason);
+
 
         return eventMergeRecordRepository.save(record);
     }
