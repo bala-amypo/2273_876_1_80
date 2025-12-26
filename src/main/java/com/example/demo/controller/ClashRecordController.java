@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/clashes")
-public class ClashController {
+public class ClashRecordController {
 
     private final ClashDetectionService clashDetectionService;
 
-    public ClashController(ClashDetectionService clashDetectionService) {
+    public ClashRecordController(ClashDetectionService clashDetectionService) {
         this.clashDetectionService = clashDetectionService;
     }
 
