@@ -1,55 +1,60 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.entity.HarmonizedCalendar;
+import com.example.demo.entity.EventMergeRecord;
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.repository.HarmonizedCalendarRepository;
-import com.example.demo.service.HarmonizedCalendarService;
+import com.example.demo.repository.AcademicEventRepository;
+import com.example.demo.repository.EventMergeRecordRepository;
+import com.example.demo.service.EventMergeService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class HarmonizedCalendarServiceImpl implements HarmonizedCalendarService {
+public class EventMergeServiceImpl implements EventMergeService {
     
-    private final HarmonizedCalendarRepository harmonizedCalendarRepository;
+    private final EventMergeRecordRepository eventMergeRecordRepository;
+    private final AcademicEventRepository academicEventRepository;
     
-    public HarmonizedCalendarServiceImpl(HarmonizedCalendarRepository harmonizedCalendarRepository) {
-        this.harmonizedCalendarRepository = harmonizedCalendarRepository;
+    public EventMergeServiceImpl(EventMergeRecordRepository eventMergeRecordRepository, 
+                                AcademicEventRepository academicEventRepository) {
+        this.eventMergeRecordRepository = eventMergeRecordRepository;
+        this.academicEventRepository = academicEventRepository;
     }
     
     @Override
-    public HarmonizedCalendar generateHarmonizedCalendar(String title, String generatedBy) {
-        HarmonizedCalendar calendar = new HarmonizedCalendar();
-        calendar.setTitle(title);
-        calendar.setGeneratedBy(generatedBy);
-        calendar.setGeneratedAt(LocalDateTime.now());
-        calendar.setEventsJson("{}");
-        
-        if (calendar.getEffectiveFrom() != null && calendar.getEffectiveTo() != null) {
-            if (calendar.getEffectiveFrom().isAfter(calendar.getEffectiveTo())) {
-                throw new ValidationException("Effective from date must be before or equal to effective to date");
+    public EventMergeRecord mergeEvents(List<Long> eventIds, String reason) {
+        for (Long eventId : eventIds) {
+            if (!academicEventRepository.existsById(eventId)) {
+                throw new ResourceNotFoundException("Event not found with id: " + eventId);
             }
         }
         
-        return harmonizedCalendarRepository.save(calendar);
+        String sourceEventIds = eventIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+        
+        EventMergeRecord mergeRecord = new EventMergeRecord();
+        mergeRecord.setSourceEventIds(sourceEventIds);
+        mergeRecord.setMergeReason(reason);
+        
+        return eventMergeRecordRepository.save(mergeRecord);
     }
     
     @Override
-    public HarmonizedCalendar getCalendarById(Long id) {
-        return harmonizedCalendarRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Calendar not found with id: " + id));
+    public List<EventMergeRecord> getAllMergeRecords() {
+        return eventMergeRecordRepository.findAll();
     }
     
     @Override
-    public List<HarmonizedCalendar> getAllCalendars() {
-        return harmonizedCalendarRepository.findAll();
+    public EventMergeRecord getMergeRecordById(Long id) {
+        return eventMergeRecordRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Merge record not found with id: " + id));
     }
     
     @Override
-    public List<HarmonizedCalendar> getCalendarsWithinRange(LocalDate start, LocalDate end) {
-        return harmonizedCalendarRepository.findByEffectiveFromBetween(start, end);
+    public List<EventMergeRecord> getMergeRecordsByDate(LocalDate start, LocalDate end) {
+        return eventMergeRecordRepository.findByMergeDateBetween(start, end);
     }
 }
