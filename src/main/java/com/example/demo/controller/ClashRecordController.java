@@ -1,36 +1,51 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.ClashRecord;
-import com.example.demo.service.impl.ClashDetectionServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.example.demo.service.ClashDetectionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/clashes")
+@Tag(name = "Clash Records")
 public class ClashRecordController {
 
-    @Autowired
-    private ClashDetectionServiceImpl clashDetectionService;
+    private final ClashDetectionService service;
 
-    @GetMapping("/event/{eventId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('REVIEWER')")
-    public ResponseEntity<List<ClashRecord>> getClashesForEvent(@PathVariable Long eventId) {
-        return ResponseEntity.ok(clashDetectionService.getClashesForEvent(eventId));
+    public ClashRecordController(ClashDetectionService service) {
+        this.service = service;
     }
 
-    @GetMapping("/unresolved")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<ClashRecord>> getUnresolvedClashes() {
-        return ResponseEntity.ok(clashDetectionService.getUnresolvedClashes());
+    @PostMapping
+    @Operation(summary = "Log a clash")
+    public ClashRecord log(@RequestBody ClashRecord c) {
+        return service.logClash(c);
     }
 
     @PutMapping("/{id}/resolve")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ClashRecord> resolveClash(@PathVariable Long id) {
-        return ResponseEntity.ok(clashDetectionService.resolveClash(id));
+    @Operation(summary = "Resolve clash")
+    public ClashRecord resolve(@PathVariable Long id) {
+        return service.resolveClash(id);
+    }
+
+    @GetMapping
+    @Operation(summary = "List all clashes")
+    public List<ClashRecord> all() {
+        return service.getAllClashes();
+    }
+
+    @GetMapping("/event/{eventId}")
+    @Operation(summary = "Get clashes for event")
+    public List<ClashRecord> byEvent(@PathVariable Long eventId) {
+        return service.getClashesForEvent(eventId);
+    }
+
+    @GetMapping("/unresolved")
+    @Operation(summary = "Get unresolved clashes")
+    public List<ClashRecord> unresolved() {
+        return service.getUnresolvedClashes();
     }
 }

@@ -1,36 +1,52 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.BranchProfile;
-import com.example.demo.service.impl.BranchProfileServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.example.demo.service.BranchProfileService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/branches")
+@Tag(name = "Branch Profiles")
 public class BranchProfileController {
 
-    @Autowired
-    private BranchProfileServiceImpl branchProfileService;
+    private final BranchProfileService service;
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('REVIEWER')")
-    public ResponseEntity<List<BranchProfile>> getAllBranches() {
-        return ResponseEntity.ok(branchProfileService.getAllBranches());
+    public BranchProfileController(BranchProfileService service) {
+        this.service = service;
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BranchProfile> createBranch(@RequestBody BranchProfile branch) {
-        return ResponseEntity.ok(branchProfileService.createBranch(branch));
+    @Operation(summary = "Create a branch")
+    public BranchProfile create(@RequestBody BranchProfile b) {
+        return service.createBranch(b);
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BranchProfile> updateBranchStatus(@PathVariable Long id, @RequestParam boolean active) {
-        return ResponseEntity.ok(branchProfileService.updateBranchStatus(id, active));
+    @Operation(summary = "Activate / Deactivate branch")
+    public BranchProfile update(@PathVariable Long id,
+                                @RequestParam boolean active) {
+        return service.updateBranchStatus(id, active);
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get branch by ID")
+    public BranchProfile get(@PathVariable Long id) {
+        return service.getBranchById(id);
+    }
+
+    @GetMapping
+    @Operation(summary = "List all branches")
+    public List<BranchProfile> getAll() {
+        return service.getAllBranches();
+    }
+
+    @GetMapping("/lookup/{code}")
+    @Operation(summary = "Find branch by code")
+    public BranchProfile find(@PathVariable String code) {
+        return service.findByBranchCode(code);
     }
 }
