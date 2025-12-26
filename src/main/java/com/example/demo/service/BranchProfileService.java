@@ -8,5 +8,5 @@ public interface BranchProfileService {
     BranchProfile updateBranchStatus(Long id, boolean active);
     List<BranchProfile> getAllBranches();
     BranchProfile getBranchById(Long id);
-    BranchProfile findByBranchCode(String code);
+    BranchProfile findByBranchCode(String branchCode);
 }
