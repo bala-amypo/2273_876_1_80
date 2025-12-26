@@ -9,5 +9,6 @@ public interface ClashRecordRepository extends JpaRepository<ClashRecord, Long> 
 
     List<ClashRecord> findByEventAIdOrEventBId(Long eventAId, Long eventBId);
 
+
     List<ClashRecord> findByResolvedFalse();
 }
