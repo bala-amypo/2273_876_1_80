@@ -1,10 +1,12 @@
+package com.example.demo.service;
+
+import com.example.demo.entity.UserAccount;
+
 public interface UserAccountService {
 
-    UserAccount register(RegisterRequest request);
-
-    UserAccount findByEmail(String email);
-
-    List<UserAccount> getAllUsers();
+    UserAccount register(UserAccount user);
 
     UserAccount getUser(Long id);
+
+    UserAccount getByEmail(String email);
 }
