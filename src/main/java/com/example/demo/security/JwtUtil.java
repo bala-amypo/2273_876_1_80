@@ -2,6 +2,9 @@ package com.example.demo.security;
 
 import java.util.function.Function;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import io.jsonwebtoken.Claims;
 
@@ -33,6 +36,20 @@ public class JwtUtil {
                 .signWith(key)
                 .compact();
     }
+private Claims extractAllClaims(String token) {
+    return Jwts.parserBuilder()
+            .setSigningKey(secretKey)   // <-- must match your signing key variable
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+}
+public boolean validateToken(String token, UserDetails userDetails) {
+    String email = extractEmail(token);
+    return email != null && email.equals(userDetails.getUsername()) && !isTokenExpired(token);
+}
+public boolean isTokenExpired(String token) {
+    return extractAllClaims(token).getExpiration().before(new java.util.Date());
+}
 
     public String generateTokenForUser(UserAccount user) {
         Map<String, Object> claims = Map.of(
