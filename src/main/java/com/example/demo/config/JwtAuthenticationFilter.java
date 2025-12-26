@@ -21,6 +21,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
+    public String extractEmail(String token) {
+    return extractClaim(token, Claims::getSubject);
+}
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
