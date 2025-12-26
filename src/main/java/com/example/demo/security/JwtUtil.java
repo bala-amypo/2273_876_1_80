@@ -2,11 +2,11 @@ package com.example.demo.security;
 
 import com.example.demo.entity.UserAccount;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
@@ -14,31 +14,25 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:MySuperSecretKeyForJwtToken123456}")   // fallback default if not in properties
+    @Value("${jwt.secret:MySuperSecretKeyForJwtToken1234567890}")
     private String secret;
 
-    @Value("${jwt.expiration:3600000}") // 1 hour default
+    @Value("${jwt.expiration:3600000}")
     private long expirationMillis;
 
-    private Key secretKey;
+    private SecretKey secretKey;
 
-    /**
-     * Called in tests and app startup
-     */
     public void initKey() {
-        this.secretKey = new SecretKeySpec(secret.getBytes(), SignatureAlgorithm.HS256.getJcaName());
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    private Key getKey() {
-        if (secretKey == null) {
-            initKey();
-        }
+    private SecretKey getKey() {
+        if (secretKey == null) initKey();
         return secretKey;
     }
 
-    // ---------------- TOKEN GENERATION ----------------
-
-    public String generateToken(Map<String, Object> claims, String subject) {
+    // ------------------- TOKEN GENERATION -------------------
+    public String generateToken(Map<String,Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
@@ -48,27 +42,20 @@ public class JwtUtil {
                 .compact();
     }
 
-    /**
-     * Used in tests
-     */
     public String generateTokenForUser(UserAccount user) {
-        Map<String, Object> claims = Map.of(
+        Map<String,Object> claims = Map.of(
                 "role", user.getRole(),
                 "userId", user.getId()
         );
         return generateToken(claims, user.getEmail());
     }
 
-    /**
-     * Old style API usage (jjwt 0.9.x)
-     */
+    // ------------------- PARSING -------------------
     public Jws<Claims> parseToken(String token) {
         return Jwts.parser()
                 .setSigningKey(getKey())
                 .parseClaimsJws(token);
     }
-
-    // ---------------- CLAIM HELPERS ----------------
 
     public Claims extractAllClaims(String token) {
         return parseToken(token).getBody();
@@ -87,24 +74,21 @@ public class JwtUtil {
     }
 
     public Long extractUserId(String token) {
-        Object value = extractAllClaims(token).get("userId");
-        if (value == null) return null;
-        return Long.parseLong(value.toString());
+        Object v = extractAllClaims(token).get("userId");
+        return v == null ? null : Long.parseLong(v.toString());
     }
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private boolean isTokenExpired(String token) {
+    private boolean isExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    // ---------------- VALIDATION ----------------
-
+    // ------------------- VALIDATION -------------------
     public boolean isTokenValid(String token, String email) {
-        String username = extractUsername(token);
-        return username != null && username.equals(email) && !isTokenExpired(token);
+        return email.equals(extractUsername(token)) && !isExpired(token);
     }
 
     public boolean validateToken(String token, String username) {
