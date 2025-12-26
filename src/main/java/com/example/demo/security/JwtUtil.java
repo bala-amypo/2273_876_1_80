@@ -1,5 +1,9 @@
 package com.example.demo.security;
 
+import java.util.function.Function;
+
+import io.jsonwebtoken.Claims;
+
 import com.example.demo.entity.UserAccount;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -57,6 +61,14 @@ public class JwtUtil {
         String username = extractUsername(token);
         return username.equals(email) && !isTokenExpired(token);
     }
+public String extractClaim(String token, Function<Claims, String> claimsResolver) {
+    return claimsResolver.apply(extractAllClaims(token));
+}
+
+public String extractEmail(String token) {
+    return extractClaim(token, Claims::getSubject);
+}
+
 
     private boolean isTokenExpired(String token) {
         return parseToken(token).getExpiration().before(new Date());
