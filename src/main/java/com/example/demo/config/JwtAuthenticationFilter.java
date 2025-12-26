@@ -1,5 +1,7 @@
 package com.example.demo.config;
 
+import io.jsonwebtoken.Claims;
+
 import com.example.demo.security.JwtUtil;
 import com.example.demo.security.CustomUserDetailsService;
 import jakarta.servlet.*;
