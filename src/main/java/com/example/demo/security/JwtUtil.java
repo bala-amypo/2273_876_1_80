@@ -18,8 +18,12 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
+
 @Component
 public class JwtUtil {
+     
+     @Value("${jwt.secret}")
+private String secretKey;
 
     private Key key;
 
@@ -47,9 +51,7 @@ public boolean validateToken(String token, UserDetails userDetails) {
     String email = extractEmail(token);
     return email != null && email.equals(userDetails.getUsername()) && !isTokenExpired(token);
 }
-public boolean isTokenExpired(String token) {
-    return extractAllClaims(token).getExpiration().before(new java.util.Date());
-}
+
 
     public String generateTokenForUser(UserAccount user) {
         Map<String, Object> claims = Map.of(
