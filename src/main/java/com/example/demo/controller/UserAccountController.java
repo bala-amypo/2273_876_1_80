@@ -6,13 +6,15 @@ import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.UserAccount;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserAccountService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,62 +22,64 @@ import java.util.Map;
 public class UserAccountController {
 
     private final UserAccountService userAccountService;
+    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserAccountController(UserAccountService userAccountService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public UserAccountController(UserAccountService userAccountService,
+                                 AuthenticationManager authenticationManager,
+                                 JwtUtil jwtUtil,
+                                 PasswordEncoder passwordEncoder) {
         this.userAccountService = userAccountService;
+        this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ----------------- REGISTER -----------------
+    // ------------------------------------------------
+    // REGISTER
+    // ------------------------------------------------
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse> register(@Valid @RequestBody RegisterRequest request) {
+
         UserAccount user = new UserAccount();
         user.setFullName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
-        user.setRole(request.getRole());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());              // default handled in service
         user.setDepartment(request.getDepartment());
 
-        UserAccount createdUser = userAccountService.register(user);
+        UserAccount created = userAccountService.register(user);
 
-        return ResponseEntity.ok(new ApiResponse(true, "User registered successfully", createdUser));
+        return ResponseEntity.ok(
+                new ApiResponse(true, "User registered successfully", created.getId())
+        );
     }
 
-    // ----------------- LOGIN -----------------
+    // ------------------------------------------------
+    // LOGIN
+    // ------------------------------------------------
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
-        UserAccount user = userAccountService.findByEmail(request.getEmail());
+    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request) {
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new ApiResponse(false, "Invalid email or password"));
-        }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+        UserAccount user = userAccountService.getByEmail(request.getEmail());
+
+        String token = jwtUtil.generateTokenForUser(user);
 
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
-        data.put("user", user);
+        data.put("userId", user.getId());
+        data.put("role", user.getRole());
 
-        return ResponseEntity.ok(new ApiResponse(true, "Login successful", data));
-    }
-
-    // ----------------- GET ALL USERS (ADMIN) -----------------
-    @GetMapping("/users")
-    public ResponseEntity<List<UserAccount>> getAllUsers() {
-        List<UserAccount> users = userAccountService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
-
-    // ----------------- GET USER BY ID (ADMIN) -----------------
-    @GetMapping("/users/{id}")
-    public ResponseEntity<UserAccount> getUser(@PathVariable Long id) {
-        UserAccount user = userAccountService.getUser(id);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(
+                new ApiResponse(true, "Login successful", data)
+        );
     }
 }
