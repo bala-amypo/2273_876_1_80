@@ -26,8 +26,9 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+
         UserAccount user = new UserAccount();
-        user.setName(request.getName());
+        // REMOVE setName() because UserAccount does not have it
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
