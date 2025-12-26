@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         return new ResponseEntity<>(
-                new ApiResponse(ex.getMessage(), false),
+                new ApiResponse(false, ex.getMessage(), null),
                 HttpStatus.NOT_FOUND
         );
     }
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiResponse> handleValidationException(ValidationException ex) {
         return new ResponseEntity<>(
-                new ApiResponse(ex.getMessage(), false),
+                new ApiResponse(false, ex.getMessage(), null),
                 HttpStatus.BAD_REQUEST
         );
     }
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleGeneralException(Exception ex) {
         return new ResponseEntity<>(
-                new ApiResponse(ex.getMessage(), false),
+                new ApiResponse(false, ex.getMessage(), null),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
