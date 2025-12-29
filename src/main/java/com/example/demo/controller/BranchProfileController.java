@@ -20,8 +20,7 @@ public class BranchProfileController{
     }
 
     @PutMapping("/{id}/status")
-    public BranchProfile updateStatus(@PathVariable Long id,
-                                      @RequestParam boolean active) {
+    public BranchProfile updateStatus(@PathVariable Long id, @RequestParam boolean active) {
         return branchProfileService.updateBranchStatus(id, active);
     }
 
