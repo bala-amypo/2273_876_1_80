@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/branches")
-public class BranchProfileController {
+public class BranchProfileController{
 
     private final BranchProfileService branchProfileService;
 
