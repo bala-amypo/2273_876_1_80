@@ -6,7 +6,7 @@ public class EventMergeRequest {
     private List<Long> eventIds;
     private String reason;
 
-    // getters and setters
+    
     public List<Long> getEventIds() { return eventIds; }
     public void setEventIds(List<Long> eventIds) { this.eventIds = eventIds; }
     public String getReason() { return reason; }
